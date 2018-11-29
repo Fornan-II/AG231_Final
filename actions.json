@@ -6,11 +6,13 @@
     },
     {
       "name": "/actions/default/in/Teleport",
-      "type": "boolean"
+      "type": "boolean",
+      "requirement": "mandatory"
     },
     {
       "name": "/actions/default/in/GrabPinch",
-      "type": "boolean"
+      "type": "boolean",
+      "requirement": "mandatory"
     },
     {
       "name": "/actions/default/in/GrabGrip",
@@ -18,22 +20,25 @@
     },
     {
       "name": "/actions/default/in/Pose",
-      "type": "pose"
+      "type": "pose",
+      "requirement": "optional"
     },
     {
       "name": "/actions/default/in/SkeletonLeftHand",
       "type": "skeleton",
-      "skeleton": "/skeleton/hand/left"
+      "skeleton": "/skeleton/hand/left",
+      "requirement": "optional"
     },
     {
       "name": "/actions/default/in/SkeletonRightHand",
       "type": "skeleton",
-      "skeleton": "/skeleton/hand/right"
+      "skeleton": "/skeleton/hand/right",
+      "requirement": "optional"
     },
     {
       "name": "/actions/default/in/Squeeze",
       "type": "vector1",
-      "requirement": "optional"
+      "requirement": "suggested"
     },
     {
       "name": "/actions/default/out/Haptic",
