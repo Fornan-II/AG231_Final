@@ -12,27 +12,26 @@ MonoBehaviour:
   m_Name: ProBuilderPreferences
   m_EditorClassIdentifier: 
   m_Bool_keys:
-  - pbGrowSelectionUsingAngle
-  - pbGrowSelectionAngleIterative
+  - pbExtrudeAsGroup
+  - pbManifoldEdgeExtrusion
   m_Int_keys:
+  - pbHandleAlignment
   - pbDefaultEditLevel
   - pbDefaultSelectionMode
   - pb_GIWorkflowMode
-  - pbHandleAlignment
-  - pbMirrorObjectScale
   m_Float_keys:
   - pbEditorScroll.x
   - pbEditorScroll.y
-  - pbGrowSelectionAngle
+  - pbExtrudeDistance
   m_String_keys: []
   m_Color_keys: []
   m_Material_keys: []
   m_Bool_values: 0100
-  m_Int_values: 000000000100000001000000010000000c000000
+  m_Int_values: 00000000010000000100000001000000
   m_Float_values:
   - 0
   - 0
-  - 1
+  - 0.5
   m_String_values: []
   m_Color_values: []
   m_Material_values: []
