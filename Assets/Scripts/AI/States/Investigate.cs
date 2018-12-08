@@ -38,7 +38,6 @@ public class Investigate : State
     //
     public override void OnEnter(GameObject gameObject)
     {
-        Debug.Log("OnEnter");
         _agent = gameObject.GetComponent<NavMeshAgent>();
         if(_agent)
         {
@@ -58,8 +57,6 @@ public class Investigate : State
     {
         if(_agent)
         {
-            DrawPath(gameObject.transform.position);
-
             if (_investigationPointReached && (Time.timeSinceLevelLoad >= _investigationEndAtTime))
             {
                 _currentPhase = StatePhase.EXITING;
@@ -79,7 +76,6 @@ public class Investigate : State
 
     public override void OnExit(GameObject gameObject)
     {
-        Debug.Log("OnExit");
         if (_agent)
         {
             _agent.ResetPath();
@@ -102,16 +98,6 @@ public class Investigate : State
         }
 
         return false;
-    }
-
-    protected void DrawPath(Vector3 currentPosition)
-    {
-        Vector3 prevPoint = currentPosition;
-        foreach(Vector3 point in _agent.path.corners)
-        {
-            Debug.DrawLine(prevPoint, point);
-            prevPoint = point;
-        }
     }
     //
 }
