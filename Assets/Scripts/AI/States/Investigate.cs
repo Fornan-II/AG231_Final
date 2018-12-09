@@ -61,7 +61,7 @@ public class Investigate : State
             {
                 _currentPhase = StatePhase.EXITING;
             }
-            else if (! _agent.pathPending && !_investigationPointReached && _agent.remainingDistance <= DistanceForFindingInvestigationPoint)
+            else if (!_agent.pathPending && !_investigationPointReached && _agent.remainingDistance <= DistanceForFindingInvestigationPoint)
             {
                 _agent.isStopped = true;
                 _investigationPointReached = true;

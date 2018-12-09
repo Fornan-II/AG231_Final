@@ -35,7 +35,7 @@ public class Projectile : MonoBehaviour
             }
             else
             {
-                transform.Translate(transform.forward * distanceTravelledThisUpdate);
+                transform.position += transform.forward * distanceTravelledThisUpdate;
             }
         }
     }

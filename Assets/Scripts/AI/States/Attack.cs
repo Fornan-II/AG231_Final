@@ -49,13 +49,16 @@ public class Attack : State
     {
         if(_agent)
         {
+            //DebugUtil.DrawPath(_agent.path.corners);
+            //Debug.DrawLine(_lastKnownPosition + Vector3.down, _lastKnownPosition + Vector3.up, Color.yellow);
+
             _agent.isStopped = false;
             bool hasNotAimedAtTarget = true;
 
             Vector3 vectorToTarget = _target.position - gameObject.transform.position;
             float vectorToTargetMagnitude = vectorToTarget.magnitude;
             Ray lineOfSightRay = new Ray(gameObject.transform.position, vectorToTarget);
-            if(1 >= Physics.RaycastNonAlloc(lineOfSightRay, null, vectorToTargetMagnitude, AIBrain.LineOfSightBlocking, QueryTriggerInteraction.Ignore))
+            if(1 >= Physics.RaycastNonAlloc(lineOfSightRay, new RaycastHit[2], vectorToTargetMagnitude, AIBrain.LineOfSightBlocking, QueryTriggerInteraction.Ignore))
             {
                 _lastKnownPosition = _target.position;
                 if (weapon)
@@ -67,6 +70,10 @@ public class Attack : State
                 {
                     _agent.isStopped = true;
                     weapon.Attack();
+                }
+                else if(!_agent.pathPending)
+                {
+                    _agent.SetDestination(_lastKnownPosition);
                 }
             }
             else if(!_agent.pathPending && _agent.remainingDistance <= _atLastKnownPositionRange)
