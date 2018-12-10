@@ -6,59 +6,189 @@ using UnityEngine;
 public class AIBrain : MonoBehaviour
 {
     public static LayerMask LineOfSightBlocking = Physics.AllLayers;
-    protected StateMachine _stateMachine;
-
-    private void Start()
-    {
-        _stateMachine = GetComponent<StateMachine>();
-    }
-
-    #region Debug Manual State Selection
+    public GameObject Player;
+    public float sightRange = 7.0f;
+    public float fieldOfView = 120.0f;
+    public Transform eyeTransform;
+    public float AIThinkRate = 0.03f;
     public Transform[] PatrolPoints;
-    public Transform thingToInvestigate;
-    public Vector2 searchTime = new Vector2(7.0f, 20.0f);
     public RobotArmLasers Lasers;
 
-    public enum State
+    protected StateMachine _stateMachine;
+    protected float _AIThinkTimer = 0.0f;
+
+    public enum AIState
     {
-        IDLE, PATROL, INVESTIGATE, SEARCHNEARBY, ATTACK
+        NONE,
+        IDLE,
+        PATROL,
+        INVESTIGATE,
+        SEARCHNEARBY,
+        ATTACK
     }
-    public State DesiredState;
-
-    private void OnValidate()
+    protected Dictionary<System.Type, AIState> stateTypes = new Dictionary<System.Type, AIState>()
     {
-        if(!_stateMachine) { return; }
+        {typeof(Idle), AIState.IDLE},
+        {typeof(Patrol), AIState.PATROL},
+        {typeof(Investigate), AIState.INVESTIGATE},
+        {typeof(SearchNearby), AIState.SEARCHNEARBY},
+        {typeof(Attack), AIState.ATTACK}
+    };
 
-        if (DesiredState == State.IDLE)
+    protected virtual void Start()
+    {
+        _stateMachine = GetComponent<StateMachine>();
+        if(!Player)
         {
-            _stateMachine.CurrentState = new Idle();
+            Player = GameObject.FindGameObjectWithTag("Player");
+        }
+    }
+
+    protected virtual void FixedUpdate()
+    {
+        _AIThinkTimer -= Time.fixedDeltaTime;
+        if(_AIThinkTimer <= 0.0f)
+        {
+            _AIThinkTimer = AIThinkRate;
+            Think();
+        }
+    }
+
+    protected virtual void Think()
+    {
+        //Debug.Log("Thinking about: " + GetCurrentAIState());
+        switch(GetCurrentAIState())
+        {
+            case AIState.NONE:
+                {
+                    QueueState(GetNewPassiveState(true));
+                    break;
+                }
+            case AIState.IDLE:
+                {
+                    if(LookForPlayer())
+                    {
+                        Alert(Player.transform.position, 4);
+                    }
+                    break;
+                }
+            case AIState.PATROL:
+                {
+                    if (LookForPlayer())
+                    {
+                        Alert(Player.transform.position, 3);
+                    }
+                    break;
+                }
+            case AIState.INVESTIGATE:
+                {
+                    if(LookForPlayer())
+                    {
+                        QueueState(new Attack(Player.transform, Lasers), true);
+                    }
+                    break;
+                }
+            case AIState.SEARCHNEARBY:
+                {
+                    if (LookForPlayer())
+                    {
+                        QueueState(new Attack(Player.transform, Lasers), true);
+                    }
+                    break;
+                }
+            case AIState.ATTACK:
+                {
+                    break;
+                }
+        }
+    }
+
+    public AIState GetCurrentAIState()
+    {
+        if(!_stateMachine)
+        {
+            return AIState.NONE;
+        }
+
+        if(_stateMachine.CurrentState == null)
+        {
+            return AIState.NONE;
+        }
+
+        return stateTypes[_stateMachine.CurrentState.GetType()];
+    }
+
+    public void Alert(Vector3 point, int priority)
+    {
+        QueueState(new Investigate(point, priority), true);
+    }
+
+    public void QueueState(State nextState, bool forceState = false)
+    {
+        //Debug.Log("Attempting to queue " + nextState + "\nForceEndPrevious: " + forceState);
+        _stateMachine.CurrentState = nextState;
+        if(forceState)
+        {
             _stateMachine.ForceNextState();
         }
-        if (DesiredState == State.PATROL)
+    }
+
+    private State GetNewPassiveState(bool doAutoEnding)
+    {
+        float random = Random.value;
+
+        if(random < 0.5f)
         {
-            List<Vector3> points = new List<Vector3>();
-            foreach (Transform t in PatrolPoints)
+            if(doAutoEnding)
             {
-                points.Add(t.position);
+                return new Idle(Random.Range(1.0f, 7.0f));
             }
-            _stateMachine.CurrentState = new Patrol(points);
-            _stateMachine.ForceNextState();
+            else
+            {
+                return new Idle();
+            }
         }
-        if(DesiredState == State.INVESTIGATE && thingToInvestigate)
+        else
         {
-            _stateMachine.CurrentState = new Investigate(thingToInvestigate.position, 0);
-            _stateMachine.ForceNextState();
-        }
-        if(DesiredState == State.SEARCHNEARBY && thingToInvestigate)
-        {
-            _stateMachine.CurrentState = new SearchNearby(thingToInvestigate.position, searchTime.x, searchTime.y);
-            _stateMachine.ForceNextState();
-        }
-        if(DesiredState == State.ATTACK && thingToInvestigate)
-        {
-            _stateMachine.CurrentState = new Attack(thingToInvestigate, Lasers);
-            _stateMachine.ForceNextState();
+            if (doAutoEnding)
+            {
+                return new Patrol(PatrolPoints, Random.Range(5.0f, 60.0f), 10.0f);
+            }
+            else
+            {
+                return new Patrol(PatrolPoints, 10.0f);
+            }
         }
     }
-    #endregion
+
+    private bool LookForPlayer()
+    {
+        Vector3 vectorToTarget = Player.transform.position - eyeTransform.position;
+        float vectorToTargetMagnitude = vectorToTarget.magnitude;
+        //Check to see if player is close enough to be seen
+        if(vectorToTargetMagnitude > sightRange)
+        {
+            Debug.Log("Failed: too far away");
+            return false;
+        }
+
+        //Check to see if player is within cone of vision
+        if(Vector3.Angle(vectorToTarget, eyeTransform.forward) > fieldOfView)
+        {
+            Debug.Log("Failed: outside field of view");
+            return false;
+        }
+
+        //Check to see if anything is blocking line of sight
+        Ray lineOfSightRay = new Ray(eyeTransform.position, vectorToTarget);
+        if (1 < Physics.RaycastNonAlloc(lineOfSightRay, new RaycastHit[2], vectorToTargetMagnitude, LineOfSightBlocking, QueryTriggerInteraction.Ignore))
+        {
+            Debug.Log("Failed: obstruction");
+            return false;
+        }
+
+        //If every other check before now has failed, then the player can be seen.
+        Debug.Log("Succeeded: player seen");
+        return true;
+    }
 }

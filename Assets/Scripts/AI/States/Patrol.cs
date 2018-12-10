@@ -7,6 +7,8 @@ public class Patrol : State
 {
     //Variables
     //
+    protected bool _letAutoEnd;
+    protected float _autoEndTime;
     protected List<Vector3> _patrolPoints;
     protected Vector3 _targetPoint;
     protected NavMeshAgent _agent;
@@ -16,11 +18,11 @@ public class Patrol : State
 
     //Constructors
     //
-    public Patrol(List<Vector3> patrolPoints, float distForRanPnts = 21.0f)
+    public Patrol(Vector3[] patrolPoints, float distForRanPnts = 21.0f)
     {
         if(patrolPoints != null)
         {
-            _patrolPoints = patrolPoints;
+            _patrolPoints = new List<Vector3>(patrolPoints);
         }
         else
         {
@@ -28,8 +30,9 @@ public class Patrol : State
         }
 
         DistanceForRandomPoints = distForRanPnts;
+        _letAutoEnd = false;
     }
-    public Patrol(List<Transform> patrolPoints, float distForRanPnts = 21.0f)
+    public Patrol(Transform[] patrolPoints, float distForRanPnts = 21.0f)
     {
         _patrolPoints = new List<Vector3>();
         foreach(Transform t in patrolPoints)
@@ -38,6 +41,34 @@ public class Patrol : State
         }
 
         DistanceForRandomPoints = distForRanPnts;
+        _letAutoEnd = false;
+    }
+    public Patrol(Vector3[] patrolPoints, float stateEndTime, float distForRanPnts = 21.0f)
+    {
+        if (patrolPoints != null)
+        {
+            _patrolPoints = new List<Vector3>(patrolPoints);
+        }
+        else
+        {
+            _patrolPoints = new List<Vector3>();
+        }
+
+        DistanceForRandomPoints = distForRanPnts;
+        _letAutoEnd = true;
+        _autoEndTime = Time.timeSinceLevelLoad + stateEndTime;
+    }
+    public Patrol(Transform[] patrolPoints, float stateEndTime, float distForRanPnts = 21.0f)
+    {
+        _patrolPoints = new List<Vector3>();
+        foreach (Transform t in patrolPoints)
+        {
+            _patrolPoints.Add(t.position);
+        }
+
+        DistanceForRandomPoints = distForRanPnts;
+        _letAutoEnd = true;
+        _autoEndTime = Time.timeSinceLevelLoad + stateEndTime;
     }
     //
 
@@ -71,6 +102,14 @@ public class Patrol : State
     {
         if(_agent)
         {
+            if(_letAutoEnd)
+            {
+                if(Time.timeSinceLevelLoad >= _autoEndTime)
+                {
+                    _currentPhase = StatePhase.EXITING;
+                }
+            }
+
             if(!_agent.pathPending && _agent.remainingDistance < DistanceForRecalculatingTargetPoint)
             {
                 _targetPoint = SelectTargetPoint(gameObject.transform.position);

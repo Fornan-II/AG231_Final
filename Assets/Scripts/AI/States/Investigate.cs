@@ -82,6 +82,12 @@ public class Investigate : State
             _agent.isStopped = false;
         }
 
+        AIBrain brain = gameObject.GetComponent<AIBrain>();
+        if(brain)
+        {
+            brain.QueueState(new SearchNearby(_pointOfInterest, 5.0f, 20.0f));
+        }
+
         _currentPhase = StatePhase.INACTIVE;
     }
     //

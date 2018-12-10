@@ -8,6 +8,22 @@ public class Idle : State
     //Variables
     //
     protected NavMeshAgent _agent;
+    protected bool _letAutoEnd;
+    protected float _autoEndTime;
+    //
+
+    //Constructors
+    //
+    public Idle()
+    {
+        _letAutoEnd = false;
+    }
+
+    public Idle(float stateEndTime)
+    {
+        _letAutoEnd = true;
+        _autoEndTime = Time.timeSinceLevelLoad + stateEndTime;
+    }
     //
 
     //State Behavior stuff
@@ -26,7 +42,13 @@ public class Idle : State
 
     public override void ActiveBehavior(GameObject gameObject)
     {
-        
+        if(_letAutoEnd)
+        {
+            if(Time.timeSinceLevelLoad >= _autoEndTime)
+            {
+                _currentPhase = StatePhase.EXITING;
+            }
+        }
     }
 
     public override void OnExit(GameObject gameObject)
