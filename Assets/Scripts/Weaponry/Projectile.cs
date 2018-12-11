@@ -25,11 +25,11 @@ public class Projectile : MonoBehaviour
             RaycastHit hit;
             if(Physics.Raycast(transform.position, transform.forward, out hit, distanceTravelledThisUpdate, hittableLayers, QueryTriggerInteraction.Ignore))
             {
-                /*DamageReciever dr = hit.transform.GetComponent<DamageReciever>();
+                DamageReciever dr = hit.transform.GetComponent<DamageReciever>();
                 if(dr)
                 {
                     dr.ApplyDamage(Damage);
-                }*/
+                }
                 transform.position = hit.point;
                 Destroy(gameObject);
             }

@@ -164,7 +164,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Speed: 13
   LifeTime: 7
-  Damage: 45
+  Damage: 30
   hittableLayers:
     serializedVersion: 2
     m_Bits: 4294967295

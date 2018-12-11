@@ -66,11 +66,11 @@ public class RobotArmLasers : RangedWeapon
     {
         if(leftArmPivot)
         {
-            leftArmPivot.rotation = _leftArmInitialRotation;
+            leftArmPivot.localRotation = _leftArmInitialRotation;
         }
         if(rightArmPivot)
         {
-            rightArmPivot.rotation = _rightArmInitialRotation;
+            rightArmPivot.localRotation = _rightArmInitialRotation;
         }
     }
 

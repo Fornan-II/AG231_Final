@@ -82,7 +82,7 @@ public class Attack : State
                     _agent.isStopped = true;
                     weapon.Attack();
                 }
-                else if(!_agent.pathPending)
+                else if(_agent.destination != _lastKnownPosition)
                 {
                     _agent.SetDestination(_lastKnownPosition);
                 }
@@ -109,6 +109,11 @@ public class Attack : State
         {
             _agent.ResetPath();
             _agent.isStopped = false;
+        }
+
+        if(weapon)
+        {
+            weapon.ResetAiming();
         }
 
         AIBrain brain = gameObject.GetComponent<AIBrain>();

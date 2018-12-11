@@ -168,14 +168,14 @@ public class AIBrain : MonoBehaviour
         //Check to see if player is close enough to be seen
         if(vectorToTargetMagnitude > sightRange)
         {
-            Debug.Log("Failed: too far away");
+            //Debug.Log("Failed: too far away");
             return false;
         }
 
         //Check to see if player is within cone of vision
         if(Vector3.Angle(vectorToTarget, eyeTransform.forward) > fieldOfView)
         {
-            Debug.Log("Failed: outside field of view");
+            //Debug.Log("Failed: outside field of view");
             return false;
         }
 
@@ -183,12 +183,12 @@ public class AIBrain : MonoBehaviour
         Ray lineOfSightRay = new Ray(eyeTransform.position, vectorToTarget);
         if (1 < Physics.RaycastNonAlloc(lineOfSightRay, new RaycastHit[2], vectorToTargetMagnitude, LineOfSightBlocking, QueryTriggerInteraction.Ignore))
         {
-            Debug.Log("Failed: obstruction");
+            //Debug.Log("Failed: obstruction");
             return false;
         }
 
         //If every other check before now has failed, then the player can be seen.
-        Debug.Log("Succeeded: player seen");
+        //Debug.Log("Succeeded: player seen");
         return true;
     }
 }
