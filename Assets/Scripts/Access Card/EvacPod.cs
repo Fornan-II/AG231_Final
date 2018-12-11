@@ -29,6 +29,7 @@ public class EvacPod : Slot
     {
         yield return new WaitForSeconds(waitTime);
 
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        Valve.VR.SteamVR_LoadLevel.Begin(SceneManager.GetActiveScene().name);
     }
 }
